@@ -14,7 +14,9 @@ class BancoDados:
         database = 'sorveteria'
     )
     return self.conexao.cursor()
-     
+  
+  def __commit__(self):
+    self.conexao.commit()
  
   def __desconectar__(self):
     if self.conexao != None and self.conexao.is_connected():
@@ -33,7 +35,6 @@ class Tabela(BancoDados):
     sql =  self.classeDados().retornaSelect()
     if (id > 0): sql += f' where id = {id}'
     elif (customWhere is not None): sql += f' {customWhere}'
-    print(sql)
     cursor.execute(sql)
     retorno = self.criarResultSet(cursor)
 
@@ -51,70 +52,19 @@ class Tabela(BancoDados):
     return Array
 
 
-class Tabela_Pedidos(BancoDados):
-  def getPedidos(self):
+  def insert(self, obj: dict):
     cursor = self.__conectar__()
-    cursor.execute("select id, nomeComprador, valorTotal, dataHoraPedido from pedidos")
-    pedidos = []
-    for linha in cursor:
-      pedidos.append(
-        Pedido(
-          id = linha[0],
-          nomeComprador = linha[1],
-          valorTotal = linha[2],
-          dataHoraPedido = linha[3]
-        )
-      )
+
+    campos = ""
+    valores = ""
+    for key, val in obj.items():
+      if val == "": continue
+      campos += key + ", "
+      if not isinstance(val, (int, float)):
+        val = "'" + str(val) + "'"
+      valores += str(val) + ", "
+    sql = f"INSERT INTO {self.tabela} ({campos[:-2]}) VALUES ({valores[:-2]})"
+    cursor.execute(sql)
+    self.__commit__()
+    print(cursor.rowcount, " linha(s) afetada(s)")
     self.__desconectar__()
-    return pedidos
-     
-  def getPedido(self, id: int):
-    cursor = self.__conectar__()
-    cursor.execute(
-      "select id, nomeComprador, valorTotal, dataHoraPedido from pedidos \
-       where id=%s", [id])
-    pedido = None
-    for linha in cursor:
-      pedido = Pedido(
-        id = linha[0],
-        nomeComprador = linha[1],
-        valorTotal = linha[2],
-        dataHoraPedido = linha[3]
-      )
-    self.__desconectar__()
-    return pedido
-  
-class Tabela_Produtos(BancoDados):
-    def getProdutos(self):
-        cursor = self.__conectar__()
-        cursor.execute("select id, descricao, quantidade, valorUnidade, idReceita from produtos")
-        produtos = []
-        for linha in cursor:
-            produtos.append(
-                Produto(
-                id = linha[0],
-                descricao=linha[1],
-                quantidade = linha[2],
-                valorUnidade = linha[3],
-                idReceita = linha[4]
-                )
-            )
-        self.__desconectar__()
-        return produtos
-        
-    def getProduto(self, id: int):
-        cursor = self.__conectar__()
-        cursor.execute(
-            "select id, descricao, quantidade, valorUnidade, idReceita from produtos \
-            where id=%s", [id])
-        produto = None
-        for linha in cursor:
-            produto = Produto(
-                id = linha[0],
-                descricao=linha[1],
-                quantidade = linha[2],
-                valorUnidade = linha[3],
-                idReceita = linha[4]
-            )
-        self.__desconectar__()
-        return produto

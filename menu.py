@@ -1,6 +1,6 @@
 import os
 from ClassesDeOperacao import Tabela
-from ClassesDeDados import Pedido, Produto
+import ClassesDeDados
 
 class Menu:
 
@@ -19,12 +19,42 @@ class Menu:
 
       match val:
         case 1:
-          self.tabela = Tabela(Pedido)
+          self.tabela = Tabela(ClassesDeDados.Pedido)
         case 2:
-          self.tabela = Tabela(Produto)
+          self.tabela = Tabela(ClassesDeDados.Produto)
 
     self.mainMenu()
+    
+  def select(self):
+    os.system('cls')
+    try:
+      id = int(input("Informe o ID para busca: (0 para buscar todos)\n"))
+    except:
+      id = 0
+    arr = self.tabela.select(id=id)
+    for i in arr:
+      print(i)
+
+  def insert(self):
+    arr = self.tabela.classeDados().retornaNomeAtributos()
+    obj = {}
+    os.system('cls')
+    print("Informe os valores para os seguintes campos: (Deixe vazio para null)")
+    for item in arr:
+      print(f"{item}: ", end="")
+      valor = input()
+      if valor.isdigit():
+        valor = int(valor)
+      elif valor.replace('.','',1).isdigit() and valor.count('.') < 2:
+        valor = float(valor)
+      obj[item] = valor
         
+    self.tabela.insert(obj)
+
+  def update(self):
+    os.system('cls')
+    arr = self.tabela.classeDados().retornaNomeAtributos()
+    print("Qual a coluna que deseja alterar?")
 
   def mainMenu(self):
     val = 0
@@ -42,15 +72,10 @@ class Menu:
       
     match val:
       case 1:
-        print(self.tabela.select())
+        self.select()
       case 2:
-        pass
+        self.insert()
       case 3:
-        pass
+        self.update()
       case 4:
         pass
-
-
-
-
-a = Menu()

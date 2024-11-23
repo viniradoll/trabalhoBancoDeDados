@@ -6,10 +6,10 @@ class DadosBase:
       yield attr, value  
 
   def __repr__(self):
-    Str = "\n"
+    Str = ""
     for key, val in self:
       Str += f'{key}: {val}   '
-    return Str
+    return Str[:-3]
   
   def retornaNomeAtributos(self):
     array = []
