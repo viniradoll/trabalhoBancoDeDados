@@ -1,5 +1,4 @@
 import mysql.connector
-from ClassesDeDados import Produto, Pedido
 
 class BancoDados:
   conexao = None
@@ -63,7 +62,41 @@ class Tabela(BancoDados):
       if not isinstance(val, (int, float)):
         val = "'" + str(val) + "'"
       valores += str(val) + ", "
+    
     sql = f"INSERT INTO {self.tabela} ({campos[:-2]}) VALUES ({valores[:-2]})"
+    cursor.execute(sql)
+    self.__commit__()
+    print(cursor.rowcount, " linha(s) afetada(s)")
+    self.__desconectar__()
+  
+  def update(self, id:int, obj:dict, customWhere = ""):
+    cursor = self.__conectar__()
+
+    sql = f"UPDATE {self.tabela} SET "
+    for key, val in obj.items():
+      if val == "": continue
+      if not isinstance(val, (int, float)):
+        val = "'" + str(val) + "'"
+      sql += f"{str(key)} = {str(val)}, "
+    sql = sql[:-2]
+    if customWhere == "":
+      sql += f" WHERE ID = {id}"
+    else:
+      sql += f"WHERE {customWhere}"
+
+    cursor.execute(sql)
+    self.__commit__()
+    print(cursor.rowcount, " linha(s) afetada(s)")
+    self.__desconectar__()
+
+  def delete(self, id, customWhere = ""):
+    cursor = self.__conectar__()
+    sql = f"DELETE FROM {self.tabela} WHERE "
+    if customWhere == "":
+      sql += f"ID = {id}"
+    else:
+      sql += customWhere
+    
     cursor.execute(sql)
     self.__commit__()
     print(cursor.rowcount, " linha(s) afetada(s)")

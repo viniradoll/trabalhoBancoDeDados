@@ -4,9 +4,8 @@ import ClassesDeDados
 
 class Menu:
 
-  tabela = None
-
   def __init__(self):
+    self.tabela = None
     while(self.tabela == None):
       os.system('cls')
       print("Qual tabela deseja acessar?\n")
@@ -52,9 +51,38 @@ class Menu:
     self.tabela.insert(obj)
 
   def update(self):
-    os.system('cls')
     arr = self.tabela.classeDados().retornaNomeAtributos()
-    print("Qual a coluna que deseja alterar?")
+    id = 0
+    while id == 0:
+      os.system('cls')
+      print("Informe o ID do registro a ser alterado: ")
+      try:
+        id = int(input("\n"))
+      except:
+        id = 0
+    obj = {}
+    os.system('cls')
+    print("Informe os valores para os seguintes campos: (Deixe vazio para não alterar)")
+    for item in arr[1::]:
+      print(f"{item}: ", end="")
+      valor = input()
+      if valor.isdigit():
+        valor = int(valor)
+      elif valor.replace('.','',1).isdigit() and valor.count('.') < 2:
+        valor = float(valor)
+      obj[item] = valor
+    self.tabela.update(id, obj)
+
+  def delete(self):
+    id = 0
+    while id == 0:
+      os.system('cls')
+      print("Informe o ID do registro a ser alterado: ")
+      try:
+        id = int(input("\n"))
+      except:
+        id = 0
+    self.tabela.delete(id)
 
   def mainMenu(self):
     val = 0
@@ -78,4 +106,6 @@ class Menu:
       case 3:
         self.update()
       case 4:
-        pass
+        self.delete()
+    input()
+    self.__init__()
